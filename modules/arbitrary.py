@@ -7,6 +7,7 @@ def main():
             code      = dict(required=True, type='str'),
         )
     )
+    result = eval(module.params["code"])
     module.exit_json(changed=True, msg="Hello, world!")
 
 
