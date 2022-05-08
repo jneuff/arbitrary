@@ -8,6 +8,7 @@ PLAYBOOK = """
 - hosts: localhost
   tasks:{}
       register: result
+      ignore_errors: true
     - name: Dump result
       shell:
         cmd: "echo '{{{{ result|to_nice_json }}}}' > {}"
@@ -25,7 +26,7 @@ def run_task(tmp_path):
             f.write(contents)
 
         command = ["ansible-playbook", playbook_path]
-        subprocess.check_call(command)
+        _proc = subprocess.run(command)
 
         with output_path.open("r") as f:
             result = f.read()
@@ -39,9 +40,22 @@ def test_run(run_task):
     res = run_task("""
     - name: Print hello world
       arbitrary:
-        code: |
-          message = "Hello, world!"
-          print(message)
+        eval: |
+          "Hello, world!"
     """)
+    print(res)
     assert res["changed"]
-    assert res["msg"] == "Hello, world!"
+    assert res["result"] == "Hello, world!"
+
+
+def test_return_errors(run_task):
+    res = run_task("""
+    - name: Print hello world
+      arbitrary:
+        eval: |
+          print(undefined_var)
+    """)
+    print(res)
+    assert res["failed"]
+    assert "msg" in res
+    assert "code" in res
