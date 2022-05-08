@@ -36,7 +36,7 @@ def run_task(tmp_path):
     return inner
 
 
-def test_run(run_task):
+def test_evaluate_str(run_task):
     res = run_task("""
     - name: Print hello world
       arbitrary:
