@@ -38,8 +38,10 @@ def run_task(tmp_path):
 def test_run(run_task):
     res = run_task("""
     - name: Print hello world
-      debug:
-        msg: Hello, world!
+      arbitrary:
+        code: |
+          message = "Hello, world!"
+          print(message)
     """)
-    assert not res["changed"]
+    assert res["changed"]
     assert res["msg"] == "Hello, world!"
