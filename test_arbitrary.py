@@ -6,6 +6,7 @@ import pytest
 PLAYBOOK = """
 ---
 - hosts: localhost
+  vars: {}
   tasks:{}
       register: result
       ignore_errors: true
@@ -20,9 +21,9 @@ def run_task(tmp_path):
     playbook_path = tmp_path / "playbook.yml"
     output_path = tmp_path / "output.json"
 
-    def inner(task):
+    def inner(task, set_vars={}):
         with playbook_path.open("w") as f:
-            contents = PLAYBOOK.format(task, output_path)
+            contents = PLAYBOOK.format(set_vars, task, output_path)
             f.write(contents)
 
         command = ["ansible-playbook", playbook_path]
@@ -31,6 +32,7 @@ def run_task(tmp_path):
         with output_path.open("r") as f:
             result = f.read()
 
+        print(contents)
         return json.loads(result)
 
     return inner
@@ -67,3 +69,35 @@ def test_reports_error_in_statements(run_task):
     """)
     assert actual["failed"]
     assert "msg" in actual
+
+
+def test_transform_items(run_task):
+    actual = run_task("""
+    - arbitrary:
+        exec: |
+          def transform(item):
+              return {
+                  "first": item[0],
+                  "second": item[1],
+              }
+
+        eval: |
+          [transform(i) for i in {{ things }}]
+    """,
+    set_vars="""
+    things:
+      - 0: "lorem"
+        1: "ipsum"
+      - 0: "something"
+        1: "entirely"
+        2: "new"
+    """)
+    assert not actual["failed"]
+    assert actual["result"] == [
+        {
+            "first": "lorem",
+            "second": "ipsum",
+        }, {
+            "first": "something",
+            "second": "entirely",
+        }]
