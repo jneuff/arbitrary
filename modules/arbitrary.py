@@ -10,11 +10,11 @@ def main():
     )
     code = module.params.get("exec")
     final_expr = module.params["eval"]
-    definitions = {}
+    globals_and_locals = {}
     try:
         if code is not None:
-            exec(code, {}, definitions)
-        result = eval(final_expr, {}, definitions)
+            exec(code, globals_and_locals)
+        result = eval(final_expr, globals_and_locals)
     except Exception as e:
         module.fail_json(msg=f"{e}", code=code)
 
