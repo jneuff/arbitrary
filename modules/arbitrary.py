@@ -4,8 +4,8 @@ from ansible.module_utils.basic import AnsibleModule
 def main():
     module = AnsibleModule(
         argument_spec={
-            "statements": dict(required=False, type='str'),
-            "expression": dict(required=True, type='str'),
+            "statements": dict(required=False, type="str"),
+            "expression": dict(required=True, type="str"),
         }
     )
     statements = module.params.get("statements")
@@ -21,6 +21,5 @@ def main():
     module.exit_json(changed=True, result=result)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-

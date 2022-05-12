@@ -38,40 +38,47 @@ def run_task(tmp_path):
 
 
 def test_evaluate_str(run_task):
-    actual = run_task("""
+    actual = run_task(
+        """
     - name: Print hello world
       arbitrary:
         expression: |
           "Hello, world!"
-    """)
+    """
+    )
     assert not actual["failed"]
     assert actual["result"] == "Hello, world!"
 
 
 def test_reports_error_in_expression(run_task):
-    actual = run_task("""
+    actual = run_task(
+        """
     - arbitrary:
         expression: |
           print(undefined_var)
-    """)
+    """
+    )
     assert actual["failed"]
     assert "msg" in actual
 
 
 def test_reports_error_in_statements(run_task):
-    actual = run_task("""
+    actual = run_task(
+        """
     - arbitrary:
         statements: |
           this = undefined
         expression: |
           "no problem here"
-    """)
+    """
+    )
     assert actual["failed"]
     assert "msg" in actual
 
 
 def test_transform_items(run_task):
-    actual = run_task("""
+    actual = run_task(
+        """
     - arbitrary:
         statements: |
           def transform(item):
@@ -83,20 +90,23 @@ def test_transform_items(run_task):
         expression: |
           [transform(i) for i in {{ things }}]
     """,
-    set_vars="""
+        set_vars="""
     things:
       - 0: "lorem"
         1: "ipsum"
       - 0: "something"
         1: "entirely"
         2: "new"
-    """)
+    """,
+    )
     assert not actual["failed"]
     assert actual["result"] == [
         {
             "first": "lorem",
             "second": "ipsum",
-        }, {
+        },
+        {
             "first": "something",
             "second": "entirely",
-        }]
+        },
+    ]
