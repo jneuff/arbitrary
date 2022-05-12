@@ -37,15 +37,14 @@ def run_task(tmp_path):
 
 
 def test_evaluate_str(run_task):
-    res = run_task("""
+    actual = run_task("""
     - name: Print hello world
       arbitrary:
         eval: |
           "Hello, world!"
     """)
-    print(res)
-    assert res["changed"]
-    assert res["result"] == "Hello, world!"
+    assert not actual["failed"]
+    assert actual["result"] == "Hello, world!"
 
 
 def test_return_errors(run_task):
