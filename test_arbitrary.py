@@ -32,7 +32,6 @@ def run_task(tmp_path):
         with output_path.open("r") as f:
             result = f.read()
 
-        print(contents)
         return json.loads(result)
 
     return inner
@@ -42,7 +41,7 @@ def test_evaluate_str(run_task):
     actual = run_task("""
     - name: Print hello world
       arbitrary:
-        eval: |
+        expression: |
           "Hello, world!"
     """)
     assert not actual["failed"]
@@ -52,7 +51,7 @@ def test_evaluate_str(run_task):
 def test_reports_error_in_expression(run_task):
     actual = run_task("""
     - arbitrary:
-        eval: |
+        expression: |
           print(undefined_var)
     """)
     assert actual["failed"]
@@ -62,9 +61,9 @@ def test_reports_error_in_expression(run_task):
 def test_reports_error_in_statements(run_task):
     actual = run_task("""
     - arbitrary:
-        exec: |
+        statements: |
           this = undefined
-        eval: |
+        expression: |
           "no problem here"
     """)
     assert actual["failed"]
@@ -74,14 +73,14 @@ def test_reports_error_in_statements(run_task):
 def test_transform_items(run_task):
     actual = run_task("""
     - arbitrary:
-        exec: |
+        statements: |
           def transform(item):
               return {
                   "first": item[0],
                   "second": item[1],
               }
 
-        eval: |
+        expression: |
           [transform(i) for i in {{ things }}]
     """,
     set_vars="""
