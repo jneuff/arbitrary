@@ -47,14 +47,23 @@ def test_evaluate_str(run_task):
     assert actual["result"] == "Hello, world!"
 
 
-def test_return_errors(run_task):
-    res = run_task("""
-    - name: Print hello world
-      arbitrary:
+def test_reports_error_in_expression(run_task):
+    actual = run_task("""
+    - arbitrary:
         eval: |
           print(undefined_var)
     """)
-    print(res)
-    assert res["failed"]
-    assert "msg" in res
-    assert "code" in res
+    assert actual["failed"]
+    assert "msg" in actual
+
+
+def test_reports_error_in_statements(run_task):
+    actual = run_task("""
+    - arbitrary:
+        exec: |
+          this = undefined
+        eval: |
+          "no problem here"
+    """)
+    assert actual["failed"]
+    assert "msg" in actual
