@@ -6,6 +6,7 @@ import pytest
 PLAYBOOK = """
 ---
 - hosts: localhost
+  gather_facts: false
   vars: {}
   tasks:{}
       register: result
